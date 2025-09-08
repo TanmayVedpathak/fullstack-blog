@@ -6,10 +6,12 @@ const passport = require("passport");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 
+dotenv.config();
+
+const errorHandler = require("./middlewares/errorHandler");
 const authRoutes = require("./routes/authRoutes");
 const passportConfig = require("./config/passport");
-
-dotenv.config();
+const postRoutes = require("./routes/postRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -53,6 +55,20 @@ app.get("/", (req, res) => {
 });
 
 app.use("/auth", authRoutes);
+app.use("/posts", postRoutes);
+
+// ! 404 handler (unmatched routes)
+app.use((req, res) => {
+  res.status(404);
+  res.render("error", {
+    title: "Error",
+    error: "Page not found",
+    user: req.user,
+  });
+});
+
+// ! error handler
+app.use(errorHandler);
 
 // ! start server
 mongoose
