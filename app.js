@@ -3,6 +3,7 @@ const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
 const passport = require("passport");
+const methodOverride = require("method-override");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 
@@ -12,6 +13,7 @@ const errorHandler = require("./middlewares/errorHandler");
 const authRoutes = require("./routes/authRoutes");
 const passportConfig = require("./config/passport");
 const postRoutes = require("./routes/postRoutes");
+const commentRoutes = require("./routes/commentRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -37,6 +39,9 @@ app.use(
   }),
 );
 
+// method override
+app.use(methodOverride("_method"));
+
 // passport
 passportConfig(passport);
 app.use(passport.initialize());
@@ -56,6 +61,7 @@ app.get("/", (req, res) => {
 
 app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
+app.use("/", commentRoutes);
 
 // ! 404 handler (unmatched routes)
 app.use((req, res) => {
