@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 
 const Post = require("../models/Post");
 const Comment = require("../models/Comments");
+const User = require("../models/User");
 
 const addComment = asyncHandler(async (req, res) => {
   const { content } = req.body;
@@ -40,6 +41,12 @@ const addComment = asyncHandler(async (req, res) => {
   // push comment in post
   post.comments.push(comment._id);
   await post.save();
+
+  await User.findByIdAndUpdate(
+    req.user._id,
+    { $push: { comments: comment._id } },
+    { new: true },
+  );
 
   res.redirect(`/posts/${postId}`);
 });
@@ -122,6 +129,14 @@ const deleteComment = asyncHandler(async (req, res) => {
       success: "",
     });
   }
+
+  await Post.findByIdAndUpdate(comment.post, {
+    $pull: { comments: comment._id },
+  });
+
+  await User.findByIdAndUpdate(comment.author, {
+    $pull: { comments: comment._id },
+  });
 
   await Comment.findByIdAndDelete(req.params.id);
 

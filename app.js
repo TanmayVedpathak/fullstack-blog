@@ -14,6 +14,7 @@ const authRoutes = require("./routes/authRoutes");
 const passportConfig = require("./config/passport");
 const postRoutes = require("./routes/postRoutes");
 const commentRoutes = require("./routes/commentRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -62,6 +63,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
 app.use("/", commentRoutes);
+app.use("/user", userRoutes);
 
 // ! 404 handler (unmatched routes)
 app.use((req, res) => {

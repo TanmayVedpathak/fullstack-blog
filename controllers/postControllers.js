@@ -4,6 +4,7 @@ const cloudinary = require("../config/cloudinary");
 const File = require("../models/File");
 const Post = require("../models/Post");
 const User = require("../models/User");
+const Comment = require("../models/Comments");
 
 const getPostForm = (req, res) => {
   res.render("newPost", {
@@ -60,12 +61,7 @@ const createPost = asyncHandler(async (req, res) => {
     { new: true },
   );
 
-  res.render("newPost", {
-    title: "Create Post",
-    user: req.user,
-    success: "Post created successfully",
-    error: "",
-  });
+  res.redirect("/posts");
 });
 
 const getPosts = asyncHandler(async (req, res) => {
@@ -202,7 +198,8 @@ const updatePost = asyncHandler(async (req, res) => {
 });
 
 const deletePost = asyncHandler(async (req, res) => {
-  const post = await Post.findById(req.params.id);
+  const post = await Post.findById(req.params.id).populate("comments");
+
   if (!post) {
     return res.render("postDetails", {
       title: "Post",
@@ -228,6 +225,14 @@ const deletePost = asyncHandler(async (req, res) => {
       await cloudinary.uploader.destroy(image.public_id);
     }),
   );
+
+  await File.deleteMany({ uploaded_by: post.author });
+
+  await Comment.deleteMany({ post: post._id });
+
+  await User.findByIdAndUpdate(post.author, {
+    $pull: { posts: post._id },
+  });
 
   await Post.findByIdAndDelete(req.params.id);
 

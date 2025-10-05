@@ -16,11 +16,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // profilePicture: {
-    //   type: Object,
-    //   public_id: String,
-    //   url: String,
-    // },
     profilePicture: {
       public_id: {
         type: String,
